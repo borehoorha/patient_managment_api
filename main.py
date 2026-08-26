@@ -7,6 +7,13 @@ from starlette.exceptions import HTTPException
 
 app = FastAPI()
 
+def patient_exists(patient_id: int, data) -> (int, bool):
+    for i,patient in enumerate(data):
+        if patient_id == patient['id']:
+            return (i,True)
+    return (None,False)
+
+
 # JSON FILE HANDLING -------
 
 def load_data():
@@ -92,21 +99,18 @@ def update_patient(patient_id: int, patient_update: Patient_Update):
     patient_exists = False
     existing_data = {}
     # check if already exists:
-    for patient in data:
+    for i, patient in enumerate(data):
         if patient_id == patient['id']:
             existing_data = patient
             patient_exists = True
+            data.pop(i)
             break
+
     if patient_exists == False:
-        raise HTTPException(status_code=400, detail="Patient already exists")
+        raise HTTPException(status_code=400, detail="Patient Not Exists!!!")
     updated_patient_info = patient_update.model_dump(exclude_unset=True)
     for k,v in updated_patient_info.items():
         existing_data[k] = v
-
-    for i, item in enumerate(data):
-        if item.get("id") == existing_data.get('id'):
-            data.pop(i)
-            break
 
 
     # existing_patient_info -> pydantic_object -> to clac bmi and verdict
@@ -124,6 +128,17 @@ def update_patient(patient_id: int, patient_update: Patient_Update):
     return JSONResponse(status_code=200, content={"message":'Patient updated successfully!'})
 
 
+# ------ DELETE ------
+@app.delete("/delete/{patient_id}")
+def delete_patient(patient_id: int):
+    data = load_data()
+#   -- CHECK IF PATIENT EXISTS
+    check = patient_exists(patient_id, data)
+    if not check[1]:
+        raise HTTPException(status_code=400, detail="Patient not exists")
+    del data[check[0]]
+    save_data(data)
+    return JSONResponse(status_code=200, content={"message":'Patient deleted successfully!'})
 
 
 
