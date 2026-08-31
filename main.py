@@ -29,13 +29,13 @@ def patient_exists(patient_id: int, data) -> (int, bool):
 # JSON FILE HANDLING -------
 
 def load_data():
-    with open("../../data/dummy_users.json", "r") as f:
+    with open("./data/dummy_users.json", "r") as f:
     # with open("./data/file.json", "r") as f:
         data = json.load(f)
     return data
 
 def save_data(data):
-    with open("../../data/dummy_users.json","w") as f:
+    with open("./data/dummy_users.json","w") as f:
         json.dump(data,f)
 
 # -------- END ---------
