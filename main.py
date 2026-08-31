@@ -4,8 +4,18 @@ from models import Patient,Patient_Update
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI,Path,Query,HTTPException
 from starlette.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, change this to your specific streamlit domain
+    allow_credentials=True,
+    allow_methods=["*"], # Explicitly allows POST, OPTIONS, GET, etc.
+    allow_headers=["*"],
+)
+
 # DUMMY
 MODEL_VERSION = '1.1.0'
 
@@ -85,20 +95,34 @@ def sort_patients(sort_by: str = Query(..., description="Different on the basis 
 
 
 # ------ CREATE -------
+from fastapi import HTTPException
+from fastapi.responses import JSONResponse
+
+
+# Force FastAPI to listen for a POST method on this endpoint
 @app.post('/create')
 def create_patient(patient_: Patient):
-#   load existing data
+    # Load existing data
     data = load_data()
 
-# check if already exists:
+    # Check if already exists:
     for patient in data:
         if patient_.id == patient['id']:
             raise HTTPException(status_code=400, detail="Patient already exists")
 
-# Push/Dump data to json and
-    data.append(patient_.model_dump())
+    # Use mode_dump() but include your @computed_field properties (bmi and verdict)
+    patient_dict = patient_.model_dump()
+    patient_dict['bmi'] = patient_.bmi
+    patient_dict['verdict'] = patient_.verdict
+
+    # Push/Dump data to json
+    data.append(patient_dict)
     save_data(data)
-    return JSONResponse(status_code=201, content={"message":'Patient created successfully!'})
+
+    return JSONResponse(
+        status_code=201,
+        content={"message": 'Patient created successfully!', "data": patient_dict}
+    )
 
 
 # ---- UPDATE ------
