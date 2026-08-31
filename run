@@ -1,0 +1,35 @@
+#!/bin/bash
+
+`pip install -r requirements.txt` &>logs
+
+DIR="./data"
+
+if [ -n "$(find "$DIR" -maxdepth 0 -empty)" ]; then
+  echo "No data file found"
+  echo "Creating a dummy data file inside data folder"
+  `python dummy_data.py` &>>logs
+  if [[ $? -eq 0 ]]; then
+    echo "File Created Successfully"
+  else
+    echo "Failure: Could not create the file."
+  fi
+else
+    echo "Directory has files (or folders) inside."
+    echo "$(ls data)"
+fi
+
+echo "Start the server y/n: "
+read choice
+#user_choice="${choice,,}"
+
+if [[ "$choice" == "y" ]]; then
+    echo "Starting the server...."
+    sleep 1
+    `uvicorn main:app --reload`
+elif [[ "$choice" == "n" ]]; then
+    echo "Installed all the dependencies"
+    echo "Check the log"
+    echo "Exiting..."
+else
+  echo "Invalid option entered"
+fi
