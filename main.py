@@ -1,11 +1,13 @@
 import json
 from models import Patient,Patient_Update
-from faker.providers.isbn import MAX_LENGTH
+# from faker.providers.isbn import MAX_LENGTH
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI,Path,Query,HTTPException
 from starlette.exceptions import HTTPException
 
 app = FastAPI()
+# DUMMY
+MODEL_VERSION = '1.1.0'
 
 def patient_exists(patient_id: int, data) -> (int, bool):
     for i,patient in enumerate(data):
@@ -39,13 +41,21 @@ regex MAX_LENGHT MIN_LENGHT
 def home():
     return {"Hello":"This is Home"}
 
+@app.get('/health')
+def health():
+    context ={
+        "message":"OK",
+        'version': MODEL_VERSION,
+    }
+    return JSONResponse(status_code=200, content=context)
+
 @app.get("/view")
 def view():
     data = load_data()
     return data
 
 @app.get("/patient/{patient_id}")
-def patient(patient_id : int = Path(...,description="ID OF PATIENT",example="123", MAX_LENGTH=100)):
+def patient(patient_id : int = Path(...,description="ID OF PATIENT",examples="123", MAX_LENGTH=100)):
 
     data = load_data()
     for patient in data:
