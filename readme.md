@@ -10,9 +10,8 @@
 - ### Query parametes <?> : used for filtering,sorting,searching pagination without  <b> ALTERING ENDPOINT ITSELF </b>
 - ### path() - used for documentation and showing metadata, hints for path parameters for your API endpoints.
 - ### field_validator - default mode is < before:before conversion>
-: - Used as a decorator
-: - @field_validotr("variable_name")
-: - Then define a function by parametes(cls<class>, value<value:variable value>)
+ - Used as a decorator
+    - @field_validator("variable_name"): - Then define a function by parametes(cls<class>, value<value:variable value>)
 ---
 ## USAGE : 
 `
